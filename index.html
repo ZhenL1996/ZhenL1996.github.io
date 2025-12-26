@@ -39,9 +39,10 @@
             flex-direction: column;
             align-items: center;
             flex-shrink: 0;
-            position: fixed;
+            position: fixed; /* 固定在左侧 */
             height: 100vh;
             overflow-y: auto;
+            z-index: 1000;
         }
 
         .avatar {
@@ -75,67 +76,106 @@
 
         /* --- 3. 右侧主内容区域 --- */
         .main {
-            margin-left: 340px; /* 让出侧边栏宽度 */
+            margin-left: 340px; /* 让出侧边栏的宽度 (280+60) */
             padding: 40px 60px;
             max-width: 900px;
             flex-grow: 1;
         }
 
-        /* --- 顶部横向导航栏 (关键修改) --- */
+        /* --- 顶部横向导航栏 (新增的核心部分) --- */
         .top-nav {
             display: flex;
-            gap: 30px; /* 菜单间距 */
-            margin-bottom: 40px;
+            gap: 40px; /* 菜单项之间的间距 */
+            margin-bottom: 50px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #edf2f7;
-            position: sticky; /* 稍微吸顶 */
+            border-bottom: 1px solid #edf2f7; /* 底部淡灰色分割线 */
+            position: sticky; /* 吸顶效果 */
             top: 0;
-            background: white;
+            background: rgba(255, 255, 255, 0.95); /* 背景微透明 */
             z-index: 100;
             padding-top: 10px;
+            backdrop-filter: blur(5px);
         }
 
         .nav-link {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #4a5568;
             font-weight: 500;
             padding: 5px 0;
+            position: relative;
         }
 
         .nav-link:hover {
             color: var(--primary-color);
             text-decoration: none;
-            border-bottom: 2px solid var(--primary-color); /* 鼠标悬停显示下划线 */
+        }
+        
+        /* 鼠标悬停时的下划线动画 */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
         }
 
-        /* 内容板块样式 */
-        section { margin-bottom: 60px; scroll-margin-top: 80px; /* 防止标题被导航栏遮挡 */ }
-        
-        h1 { font-size: 2rem; margin-bottom: 20px; color: #1a202c; }
-        h2 { 
-            font-size: 1.5rem; 
-            margin-bottom: 20px; 
-            color: #2d3748; 
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 10px;
+        /* --- 内容板块样式 --- */
+        section { 
+            margin-bottom: 80px; 
+            scroll-margin-top: 100px; /* 防止点击导航时，标题被导航栏遮挡 */
         }
         
-        p { line-height: 1.7; margin-bottom: 1rem; font-size: 1rem; }
+        h1 { font-size: 2.2rem; margin-bottom: 25px; color: #1a202c; }
+        h2 { 
+            font-size: 1.6rem; 
+            margin-bottom: 25px; 
+            color: #2d3748; 
+            border-left: 5px solid var(--primary-color); 
+            padding-left: 15px;
+        }
+        
+        p { line-height: 1.7; margin-bottom: 1.2rem; font-size: 1.05rem; }
 
         /* 列表样式 */
         ul { padding-left: 20px; }
         li { margin-bottom: 8px; }
         
-        .project-item, .pub-item { margin-bottom: 20px; }
-        .item-title { font-weight: 700; display: block; }
-        .item-meta { color: #666; font-size: 0.9rem; font-style: italic; }
+        .project-item, .pub-item { margin-bottom: 25px; }
+        .item-title { font-weight: 700; display: block; font-size: 1.05rem; margin-bottom: 3px; }
+        .item-meta { color: #666; font-size: 0.9rem; }
+        
+        /* 标签样式 (Hot Paper) */
+        .tag {
+            display: inline-block;
+            background-color: #fff5f5;
+            color: #c53030;
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #fed7d7;
+            margin-left: 8px;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+
+        /* News 列表 */
+        .news-list { list-style: none; padding: 0; }
+        .news-item { display: flex; margin-bottom: 12px; }
+        .news-date { min-width: 90px; font-weight: 600; color: #718096; }
 
         /* 移动端适配 */
         @media (max-width: 900px) {
             body { flex-direction: column; }
             .sidebar { position: relative; width: auto; height: auto; border-right: none; padding: 30px; }
             .main { margin-left: 0; padding: 30px; }
-            .top-nav { gap: 15px; flex-wrap: wrap; justify-content: center; }
+            .top-nav { gap: 20px; flex-wrap: wrap; justify-content: center; font-size: 1rem; }
         }
     </style>
 </head>
@@ -166,6 +206,9 @@
             <div class="link-item">
                 <i class="fab fa-researchgate"></i> <a href="#">ResearchGate</a>
             </div>
+            <div class="link-item">
+                <i class="fas fa-file-pdf"></i> <a href="#">Download CV</a>
+            </div>
         </div>
     </aside>
 
@@ -176,30 +219,46 @@
             <a href="#research" class="nav-link">Research</a>
             <a href="#projects" class="nav-link">Projects</a>
             <a href="#publications" class="nav-link">Publications</a>
-            <a href="#teaching" class="nav-link">Teaching</a>
+            <a href="#teaching" class="nav-link">Teaching/Service</a>
         </nav>
         
         <section id="home">
             <h1>About Me</h1>
             <p>
-                I am currently a <strong>Research Assistant Professor</strong> at the Institute of Space and Earth Information Science, <strong>The Chinese University of Hong Kong (CUHK)</strong>. Prior to joining CUHK, I was a Postdoctoral Scholar at <strong>The Pennsylvania State University</strong> (2024–2025). I obtained my Ph.D. in Communication and Transportation Engineering from <strong>Southeast University</strong> in 2023.
+                [cite_start]I am currently a <strong>Research Assistant Professor</strong> at the Institute of Space and Earth Information Science, <strong>The Chinese University of Hong Kong (CUHK)</strong>[cite: 20]. [cite_start]Prior to joining CUHK, I was a Postdoctoral Scholar at <strong>The Pennsylvania State University</strong> (2024–2025)[cite: 25]. [cite_start]I obtained my Ph.D. in Communication and Transportation Engineering from <strong>Southeast University</strong> in 2023[cite: 3].
             </p>
             <p>
-                My research focuses on the intersection of <strong>Civil Engineering and Artificial Intelligence</strong>. I specialize in integrating multi-source monitoring technologies (GPR, FWD) with Deep Learning and Digital Twins to enhance infrastructure resilience.
+                My research focuses on the intersection of <strong>Civil Engineering and Artificial Intelligence</strong>. [cite_start]I specialize in integrating multi-source monitoring technologies (GPR, FWD) with Deep Learning and Digital Twins to enhance infrastructure resilience[cite: 14, 15, 16].
             </p>
             <p>
-                I have been recognized as one of the <strong>"World's Top 2% Scientists"</strong> by Stanford University & Elsevier (2024, 2025).
+                [cite_start]I have been recognized as one of the <strong>"World's Top 2% Scientists"</strong> by Stanford University & Elsevier (2024, 2025)[cite: 98].
             </p>
+
+            <h3 style="margin-top: 30px;">🔥 News</h3>
+            <ul class="news-list">
+                <li class="news-item">
+                    <span class="news-date">Aug 2025</span>
+                    [cite_start]<div>Joined <strong>CUHK</strong> as a Research Assistant Professor[cite: 20].</div>
+                </li>
+                <li class="news-item">
+                    <span class="news-date">2025</span>
+                    [cite_start]<div>Listed in the <strong>"World's Top 2% Scientists"</strong> (Building & Construction) for the second year[cite: 98].</div>
+                </li>
+                <li class="news-item">
+                    <span class="news-date">Jan 2025</span>
+                    [cite_start]<div>Presented 4 papers at the <strong>104th TRB Annual Meeting</strong> in Washington, D.C.[cite: 275].</div>
+                </li>
+            </ul>
         </section>
 
         <section id="research">
             <h2>Research Interests</h2>
             <p>My research aims to address critical challenges in transportation infrastructure through interdisciplinary technologies:</p>
             <ul>
-                <li><strong>Intelligent Infrastructure Inspection:</strong> Non-destructive testing using Ground Penetrating Radar (GPR) and FWD.</li>
-                <li><strong>AI for Civil Engineering (AI4CE):</strong> Utilizing Computer Vision (YOLO, Transformers) for automated distress detection.</li>
-                <li><strong>Digital Twins:</strong> BIM and GIS integration for lifecycle management of infrastructure.</li>
-                <li><strong>Sustainable Materials:</strong> Performance evaluation of recycled asphalt and low-carbon technologies.</li>
+                [cite_start]<li><strong>Intelligent Infrastructure Inspection:</strong> Non-destructive testing using Ground Penetrating Radar (GPR) and FWD[cite: 14].</li>
+                [cite_start]<li><strong>AI for Civil Engineering (AI4CE):</strong> Utilizing Computer Vision (YOLO, Transformers) for automated distress detection[cite: 132, 165].</li>
+                [cite_start]<li><strong>Digital Twins:</strong> BIM and GIS integration for lifecycle management of infrastructure[cite: 16].</li>
+                [cite_start]<li><strong>Sustainable Materials:</strong> Performance evaluation of recycled asphalt and low-carbon technologies[cite: 17].</li>
             </ul>
         </section>
 
@@ -207,15 +266,15 @@
             <h2>Selected Projects</h2>
             <div class="project-item">
                 <span class="item-title">Revisiting Compaction of Granular Soil: Insights from Particle Kinematics</span>
-                <span class="item-meta">Sponsored by NSF | Participant</span>
+                <span class="item-meta">Sponsored by NSF | [cite_start]Participant (Postdoc) [cite: 34]</span>
             </div>
             <div class="project-item">
                 <span class="item-title">Consolidated Rail Infrastructure and Safety Improvements (CRISI)</span>
-                <span class="item-meta">Sponsored by FRA | Participant</span>
+                <span class="item-meta">Sponsored by FRA | [cite_start]Participant [cite: 35]</span>
             </div>
             <div class="project-item">
                 <span class="item-title">Three-dimensional Visualization Management of Transportation Infrastructure</span>
-                <span class="item-meta">Sponsored by Southeast University | Principal Investigator (PI)</span>
+                <span class="item-meta">Sponsored by Southeast University | [cite_start]Principal Investigator (PI) [cite: 43]</span>
             </div>
         </section>
 
@@ -226,19 +285,28 @@
             <div class="pub-item">
                 <span class="item-title">Automatic pixel-level detection of vertical cracks in asphalt pavement based on GPR investigation and improved mask R-CNN</span>
                 <div style="font-size:0.95rem"><strong>Zhen Liu</strong>, J. K. Yeoh, Xingyu Gu*, et al.</div>
-                <div class="item-meta">Automation in Construction, 2023. [ESI Hot Paper]</div>
+                <div class="item-meta">
+                    <em>Automation in Construction</em>, 2023. 
+                    [cite_start]<span class="tag">ESI Hot Paper (Top 0.1%)</span> [cite: 156]
+                </div>
             </div>
 
             <div class="pub-item">
                 <span class="item-title">Automatic recognition of pavement cracks from combined GPR B-scan and C-scan images using multiscale feature fusion deep neural networks</span>
                 <div style="font-size:0.95rem"><strong>Zhen Liu</strong>, Xingyu Gu*, et al.</div>
-                <div class="item-meta">Automation in Construction, 2023. [ESI Hot Paper]</div>
+                <div class="item-meta">
+                    <em>Automation in Construction</em>, 2023. 
+                    [cite_start]<span class="tag">ESI Hot Paper (Top 0.1%)</span> [cite: 159]
+                </div>
             </div>
 
             <div class="pub-item">
                 <span class="item-title">Novel YOLOv3 model with structure and hyperparameter optimization for detection of pavement concealed cracks in GPR images</span>
                 <div style="font-size:0.95rem"><strong>Zhen Liu</strong>, Xingyu Gu*, et al.</div>
-                <div class="item-meta">IEEE T-ITS, 2022. [ESI Highly Cited]</div>
+                <div class="item-meta">
+                    <em>IEEE T-ITS</em>, 2022. 
+                    [cite_start]<span class="tag">ESI Highly Cited</span> [cite: 166]
+                </div>
             </div>
             
             <a href="https://scholar.google.com/" target="_blank">View Full List on Google Scholar &rarr;</a>
@@ -246,17 +314,25 @@
 
         <section id="teaching">
             <h2>Teaching & Service</h2>
+            
+            <h3 style="font-size: 1.2rem; margin-top: 0;">Teaching</h3>
             <div class="project-item">
                 <span class="item-title">ESGS 5017: Geoinformation Technologies for Risk and Crises Management</span>
-                <span class="item-meta">CUHK (2026-2027) | Lecturer</span>
+                <span class="item-meta">CUHK (2026-2027) | [cite_start]Lecturer [cite: 51]</span>
             </div>
             <div class="project-item">
                 <span class="item-title">CE 335: Engineering Mechanics of Soils</span>
-                <span class="item-meta">Penn State University (2024-2025) | Guest Lecturer</span>
+                <span class="item-meta">Penn State University (2024-2025) | [cite_start]Guest Lecturer [cite: 58]</span>
+            </div>
+
+            <h3 style="font-size: 1.2rem; margin-top: 25px;">Professional Service</h3>
+            <div class="project-item">
+                <span class="item-title">Editorial Board Member</span>
+                [cite_start]<span class="item-meta">Discover Civil Engineering [cite: 118]</span>
             </div>
             <div class="project-item">
-                <span class="item-title">Journal Editor & Reviewer</span>
-                <span class="item-meta">Guest Editor for Sensors, Buildings; Reviewer for IEEE T-ITS, Autom. Constr., etc.</span>
+                <span class="item-title">Guest Editor</span>
+                [cite_start]<span class="item-meta">Sensors, Buildings, Remote Sensing [cite: 121, 122, 125]</span>
             </div>
         </section>
 
